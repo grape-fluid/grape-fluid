@@ -1,0 +1,12 @@
+parameters:
+	project:
+		minLogLevel: Monolog\Logger::DEBUG
+
+
+application:
+    catchExceptions: false
+
+
+tracy:
+    bar:
+        - Grapesc\GrapeFluid\Tracy\SessionPanel

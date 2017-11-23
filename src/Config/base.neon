@@ -1,0 +1,135 @@
+php:
+	date.timezone: Europe/Prague
+
+
+application:
+	errorPresenter: Core:Error
+	catchExceptions: true
+	mapping:
+		*: Grapesc\GrapeFluid\*Module\Presenters\*Presenter
+
+
+session:
+	expiration: 14 days
+	autoStart: true
+
+latte:
+    macros:
+        - Grapesc\GrapeFluid\MagicControl\MagicControlMacro::install
+        - Grapesc\GrapeFluid\LatteMacro\IfModuleMacro
+
+database:
+	dsn: 'mysql:host=%database.host%;dbname=%database.dbname%'
+	user: %database.user%
+	password: %database.password%
+	options:
+		lazy: yes
+
+parameters:
+	project:
+		name: GrapeFluid
+		version: 0.1
+		minLogLevel: Monolog\Logger::INFO
+		layout: '%moduleDir%/CoreModule/templates/@layout.latte'
+
+	database:
+		host: localhost
+		dbname:
+		user:
+		password:
+
+	secret: # pouziva se pro sifrovani citlivych udaju
+
+	routing:
+		base: [] # Routy s nejnizsi prioritou (budou se nacitat naposledy)
+
+	translator:
+		catchUntranslated: false
+		catchFile: '%logDir%/untranslated.neon'
+		locales:
+			- %grapeFluidDir%/grape-fluid/src/Config/Locale/cs.neon
+
+	overrideTemplate: [] #':Homepage:Car:default': path/to/new/template.latte
+
+	eventListeners:
+		fluid.fluidForm.submit:
+		    service: Grapesc\GrapeFluid\FluidFormControl\FluidFormEventListener
+		    method: submit
+		fluid.fluidForm.success:
+		    service: Grapesc\GrapeFluid\FluidFormControl\FluidFormEventListener
+		    method: success
+		fluid.fluidForm.error:
+		    service: Grapesc\GrapeFluid\FluidFormControl\FluidFormEventListener
+		    method: error
+		fluid.security.namespaces.roles: []
+#		 nazev.eventu:
+#			- nazev.nebo.trida.sluzby  # zjedodusene, pokud je implemntovana process($event) metoda
+#			- [service: nazev.nebo.trida.sluzby, method: nejakametoda, priority: 3]
+
+	storage:
+	    backup: false
+	    maxsize: # respektuje aspect ratio
+	        width: 1024
+	        height: 768
+	    backupFolder: '%appDir%/resources/storage/'
+	    uploadFolder: '%wwwDir%/components/storage/'
+
+	collections: []
+
+
+services:
+	fluid.security.authenticator: Grapesc\GrapeFluid\Security\Authenticator
+	fluid.security.authorizator: Grapesc\GrapeFluid\Security\Authorizator
+	user:
+		class: Grapesc\GrapeFluid\Security\User
+		setup:
+			- setNamespacesRepository(@Grapesc\GrapeFluid\Security\NamespacesRepository)
+
+	fluid.core.magicCreator: Grapesc\GrapeFluid\MagicControl\Creator( %controls% )
+	router: Grapesc\GrapeFluid\RouterFactory::createRouter( %routing% )
+	cacheStorage: Nette\Caching\Storages\FileStorage( %tempDir% )
+	fluid.core.collector: Grapesc\GrapeFluid\LinkCollector\LinkCollector( %collections% )
+	fluid.storage: Grapesc\GrapeFluid\ImageStorage
+	flud.magicControl.templateCache: Grapesc\GrapeFluid\MagicControl\TemplateCacheService
+	fluid.logger:
+		class: Grapesc\GrapeFluid\Logger(%project.name%)
+		setup:
+			- setHandlers([ Monolog\Handler\RotatingFileHandler(%logDir%/application.log, 30) ])
+			- setProcessors([ Monolog\Processor\IntrospectionProcessor(%project.minLogLevel%), Monolog\Processor\WebProcessor() ])
+	- Grapesc\GrapeFluid\FluidFormControl\FluidFormEventListener
+	- Grapesc\GrapeFluid\Model\MigrationModel
+	- Grapesc\GrapeFluid\MagicControl\Model\TemplatesModel
+	- Grapesc\GrapeFluid\ScriptCollector
+	- Grapesc\GrapeFluid\FluidFormControl\FluidFormFactory
+	- Grapesc\GrapeFluid\FluidGrid\FluidGridFactory
+	- Grapesc\GrapeFluid\Application\ActionTemplateOverloading( %overrideTemplate% )
+
+assets:
+    config: # experimental
+        useMinifiedCSS: false
+        useMinifiedJS: false
+    upload:
+        copy:
+            - ['%storage.backupFolder%*', '%storage.uploadFolder%*']
+#    favicon:
+#        copy:
+#            - ['%storage.backupFolder%/favicon.ico', '%wwwDir%/favicon.ico']
+
+extenders:
+	form: []
+	grid: []
+
+fluid:
+	security:
+		frontend:
+			authenticator: Grapesc\GrapeFluid\Security\FakeAuth\NullAuthenticator
+			authorizator: Grapesc\GrapeFluid\Security\FakeAuth\AllowAllAuthorizator
+			forbiddenRedirectLink:
+			roles: []
+
+extensions:
+	configuration: Grapesc\GrapeFluid\Configuration\Bridges\ConfigurationDI\ConfigurationExtension
+
+tracy:
+	bar:
+		- Grapesc\GrapeFluid\Configuration\Tracy\ConfigurationBarPanel

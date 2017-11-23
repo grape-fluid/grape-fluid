@@ -1,0 +1,40 @@
+{
+  "name": "grape-fluid/grape-fluid",
+  "keywords": ["grape-fluid", "fluid-cms", "nette"],
+  "type": "library",
+  "license": "BSD-3-Clause",
+  "homepage": "https://github.com/grape-fluid/grape-fluid",
+  "authors": [
+    {
+      "name": "GRAPE SC, a.s.",
+      "email": "developers@grapesc.cz",
+      "homepage": "https://developers.grapesc.cz"
+    }
+  ],
+  "require": {
+    "php": ">= 5.6",
+    "grape-fluid/application": "@dev",
+    "grape-fluid/assets-v2": "@dev",
+    "grape-fluid/form": "@dev",
+    "grape-fluid/link-collector": "@dev",
+    "grape-fluid/logger": "@dev",
+    "grape-fluid/magic-control": "@dev",
+    "grape-fluid/plugin-system": "@dev",
+    "grape-fluid/skeleton": "@dev",
+    "grape-fluid/configuration": "@dev",
+    "nette/nette": "^2.4",
+    "uestla/twigrid": "^11.2.0",
+    "symfony/translation": "^3.1.0",
+    "symfony/event-dispatcher": "^3.1.0",
+    "symfony/console": "^3.1.0",
+    "monolog/monolog": "^1.19.0",
+    "matthiasmullie/minify": "^1.3"
+  },
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
+  "prefer-stable": true,
+  "minimum-stability": "dev"
+}
