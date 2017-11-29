@@ -306,9 +306,11 @@ class AssetRepository
 							if (isset($limit['option'])) {
 								$desc += ["option" => $limit['option']];
 							}
-							$assets[str_replace(DIRECTORY_SEPARATOR, "/", str_replace($this->params->getParam("appDir"), "", $path))] = $desc;
-						} elseif ($isUrl && $desc['type'] == $type) {
-							$assets[$path] = $desc + ["url" => true];
+							if ($isUrl) {
+								$assets[$path] = $desc + ["url" => true];
+							} else {
+								$assets[str_replace(DIRECTORY_SEPARATOR, "/", str_replace($this->params->getParam("appDir"), "", $path))] = $desc;
+							}
 						}
 					}
 				}
