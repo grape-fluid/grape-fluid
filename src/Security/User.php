@@ -22,7 +22,7 @@ class User extends Nette\Security\User
 
 		if (strpos($resource, ":") !== false) {
 			$exploded = explode(":", $resource);
-			if (count($exploded == 2)) {
+			if (count($exploded) == 2) {
 				list($namespace, $resource) = $exploded;
 				$defaultNamespace = $this->namespacesRepository->getDefaultNamespace();
 				$this->namespacesRepository->setCurrentNamespace($namespace);
