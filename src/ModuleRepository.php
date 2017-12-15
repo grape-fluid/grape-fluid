@@ -135,7 +135,9 @@ class ModuleRepository
 		$sortedModules = [];
 
 		foreach ($sorting AS $moduleName) {
-			$sortedModules[$moduleName] = $this->modules[$moduleName];
+			if ($this->moduleExist($moduleName)) {
+				$sortedModules[$moduleName] = $this->modules[$moduleName];
+			}
 		}
 
 		$this->modules  = $sortedModules;
