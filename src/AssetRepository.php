@@ -299,7 +299,7 @@ class AssetRepository
 					foreach ($files as $path => $desc) {
 						$isUrl = filter_var($path, FILTER_VALIDATE_URL);
 
-						if (pathinfo($path, PATHINFO_EXTENSION) == $type && $desc['type'] != "copy") {
+						if ((pathinfo($path, PATHINFO_EXTENSION) == $type && $desc['type'] != "copy") || ($isUrl && $desc['type'] == $type)) {
 							if (isset($limit['auth'])) {
 								$desc += ["auth" => $limit['auth']];
 							}
