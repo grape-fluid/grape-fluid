@@ -40,6 +40,7 @@ class ImageStorage
 	 * @param int $maxW - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param int $maxH - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param bool $realPath - true - vrací celou cestu, false - vrací cestu pro html dokument
+	 * @param string $suffix
 	 *
 	 * @return bool|string - string s cestou k souboru v případě úspěchu, jinak false v případě chyby (možno vyžádat přes getLastState())
 	 */
@@ -63,6 +64,7 @@ class ImageStorage
 	 * @param int $maxW - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param int $maxH - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param bool $realPath - true - vrací celou cestu, false - vrací cestu pro html dokument
+	 * @param string $suffix
 	 *
 	 * @return bool|string - string s cestou k souboru v případě úspěchu, jinak false v případě chyby (možno vyžádat přes getLastState())
 	 */
@@ -90,6 +92,7 @@ class ImageStorage
 	 * @param int $maxW - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param int $maxH - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param bool $realPath - true - vrací celou cestu, false - vrací cestu pro html dokument
+	 * @param string $suffix
 	 *
 	 * @return array - s odpovedi ve tvaru ["stav" => "cesta / nazev"]
 	 */
@@ -130,6 +133,8 @@ class ImageStorage
 	 * @param FileUpload $file
 	 * @param int $maxW - nepovinný (aplikuje se nastavení z config.neon)
 	 * @param int $maxH - nepovinný (aplikuje se nastavení z config.neon)
+	 * @param string $suffix
+	 *
 	 * @return string
 	 */
 	private function saveImage(FileUpload $file, $maxW = null, $maxH = null, $suffix = "Folder")
@@ -164,6 +169,8 @@ class ImageStorage
 	 * @param Image $image
 	 * @param int $type - výchozí Image::JPEG
 	 * @param bool $realPath - vrátit reálnou cestu? nebo pro použití v HTML?
+	 * @param string $suffix
+	 *
 	 * @return string - cesta k souboru
 	 */
 	public function savePreparedImage(Image $image, $type = Image::JPEG, $realPath = false, $suffix = "Folder")
@@ -192,7 +199,9 @@ class ImageStorage
 	 *
 	 * Možno získat výsledek mazání pomocí getLastState() metody
 	 *
-	 * @param $path
+	 * @param string $path
+	 * @param string $suffix
+	 *
 	 * @return bool - true pokud byl soubor smazan, false pokud ne
 	 */
 	public function deleteImage($path, $suffix = "Folder")
@@ -267,6 +276,8 @@ class ImageStorage
 	 * @throws \RuntimeException
 	 *
 	 * @param string $type - typ složky - backup / upload
+	 * @param string $suffix
+	 *
 	 * @return mixed
 	 */
 	private function getFolderPath($type = "upload", $suffix = "Folder")
@@ -359,7 +370,7 @@ class ImageStorage
 	/**
 	 * Převede lomítka v zadané cestě dle platných lomítek na daném prostředí
 	 *
-	 * @param $path
+	 * @param string $path
 	 * @return mixed
 	 */
 	private function getEnvironmentPath($path)
@@ -372,7 +383,7 @@ class ImageStorage
 	 * Převede lomítka v zadané cestě dle lomítek použitelných v HTML dokumentu
 	 * Taktéž ošetří případný výskyt dvou lomítek zasebou
 	 *
-	 * @param $path
+	 * @param string $path
 	 * @return mixed
 	 */
 	private function getHtmlPath($path)
