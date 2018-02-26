@@ -85,20 +85,28 @@ class MigrationService
 	 * Nazev prijima ve tvaru <Name>Module nebo 'project'
 	 *
 	 * @param $name
-	 * @return bool
+	 * @return string|bool
 	 */
 	public function createMigrationFile($name)
 	{
-		$name = strtolower($name);
+		if (strpos($name, "-") !== false) {
+			$newName = "";
+			foreach (explode("-", $name) as $part) {
+				$newName .= ucfirst(strtolower($part));
+			}
+			$name = $newName;
+		} else {
+			$name = ucfirst(strtolower($name));
+		}
 
 		$availableModules = $this->moduleRepository->getModules();
 		$migrationName = (new DateTime())->format("Y-m-d-Hi") . ".sql";
 		$migrationsDirectory = $this->fluidParameters->getParam("appDir") . DIRECTORY_SEPARATOR . "migrations";
 
-		if (array_key_exists(ucfirst($name) . "Module", $availableModules)) {
-			$moduleClass = $availableModules[ucfirst($name) . "Module"];
+		if (array_key_exists($name . "Module", $availableModules)) {
+			$moduleClass = $availableModules[$name . "Module"];
 			$migrationsDirectory = $moduleClass->getModuleDir() . DIRECTORY_SEPARATOR . "migrations";
-		} elseif ($name != "project") {
+		} elseif ($name != "Project") {
 			return false;
 		}
 
@@ -110,7 +118,7 @@ class MigrationService
 		fwrite($migrationFile, "# Paste your migration script here");
 		fclose($migrationFile);
 
-		return true;
+		return $name;
 	}
 
 

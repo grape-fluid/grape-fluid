@@ -9,7 +9,7 @@ use Tracy;
 /**
  * @author Kulíšek Patrik <kulisek@grapesc.cz>
  */
-class SessionPanel extends Nette\Object implements Tracy\IBarPanel
+class SessionPanel implements Tracy\IBarPanel
 {
 
 	/** @var Nette\Http\Session */
