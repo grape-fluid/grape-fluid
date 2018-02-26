@@ -10,6 +10,7 @@ use Nette\Utils\Random;
 
 class ImageStorage
 {
+
 	/** @var Container */
 	private $container;
 
@@ -42,11 +43,11 @@ class ImageStorage
 	 *
 	 * @return bool|string - string s cestou k souboru v případě úspěchu, jinak false v případě chyby (možno vyžádat přes getLastState())
 	 */
-	public function processImage(FileUpload $file, $maxW = null, $maxH = null, $realPath = false)
+	public function processImage(FileUpload $file, $maxW = null, $maxH = null, $realPath = false, $suffix = "Folder")
 	{
 		/** @var FileUpload $file */
 		if ($this->isImage($file)) {
-			$uploadPath = $this->saveImage($file, $maxW, $maxH);
+			$uploadPath = $this->saveImage($file, $maxW, $maxH, $suffix);
 			return $realPath ? $uploadPath : str_replace($this->getHtmlPath($this->parameters->getParam("wwwDir")), "", $this->getHtmlPath($uploadPath));
 		} else {
 			$this->setLastState('storage.message.badfile');
@@ -65,12 +66,12 @@ class ImageStorage
 	 *
 	 * @return bool|string - string s cestou k souboru v případě úspěchu, jinak false v případě chyby (možno vyžádat přes getLastState())
 	 */
-	public function processImageFromRequest($maxW = null, $maxH = null, $realPath = false)
+	public function processImageFromRequest($maxW = null, $maxH = null, $realPath = false, $suffix = "Folder")
 	{
 		/** @var FileUpload $file */
 		foreach ($this->container->getService("httpRequest")->getFiles() as $file) {
 			if ($this->isImage($file)) {
-				$uploadPath = $this->saveImage($file, $maxW, $maxH);
+				$uploadPath = $this->saveImage($file, $maxW, $maxH, $suffix);
 				return $realPath ? $uploadPath : str_replace($this->getHtmlPath($this->parameters->getParam("wwwDir")), "", $this->getHtmlPath($uploadPath));
 			} else {
 				$this->setLastState('storage.message.badfile');
@@ -92,14 +93,14 @@ class ImageStorage
 	 *
 	 * @return array - s odpovedi ve tvaru ["stav" => "cesta / nazev"]
 	 */
-	public function processImagesFromRequest($maxW = null, $maxH = null, $realPath = false)
+	public function processImagesFromRequest($maxW = null, $maxH = null, $realPath = false, $suffix = "Folder")
 	{
 		$response = [];
 
 		/** @var FileUpload $file */
 		foreach ($this->container->getService("httpRequest")->getFiles() as $file) {
 			if ($this->isImage($file)) {
-				$uploadPath = $this->saveImage($file, $maxW, $maxH);
+				$uploadPath = $this->saveImage($file, $maxW, $maxH, $suffix);
 				$response[$this->getLastState()] = $realPath ? $uploadPath : str_replace($this->getHtmlPath($this->parameters->getParam("wwwDir")), "", $this->getHtmlPath($uploadPath));
 			} else {
 				$response[$this->getLastState()] = $file->getSanitizedName();
@@ -131,10 +132,10 @@ class ImageStorage
 	 * @param int $maxH - nepovinný (aplikuje se nastavení z config.neon)
 	 * @return string
 	 */
-	private function saveImage(FileUpload $file, $maxW = null, $maxH = null)
+	private function saveImage(FileUpload $file, $maxW = null, $maxH = null, $suffix = "Folder")
 	{
 		$fileName = $this->getUniqueFileName($file);
-		$uploadPath = $this->getFolderPath("upload") . DIRECTORY_SEPARATOR . $fileName;
+		$uploadPath = $this->getFolderPath("upload", $suffix) . DIRECTORY_SEPARATOR . $fileName;
 
 		$live = $file->toImage();
 		$this->resizeImage($live, $maxW, $maxH);
@@ -144,7 +145,7 @@ class ImageStorage
 			$backup = $file->toImage();
 			$this->resizeImage($backup, $maxW, $maxH);
 			// TODO: Configurable image quality
-			$backup->save($this->getFolderPath("backup") . DIRECTORY_SEPARATOR . $fileName, 100);
+			$backup->save($this->getFolderPath("backup", $suffix) . DIRECTORY_SEPARATOR . $fileName, 100);
 			$this->setLastState('storage.message.upload-backup');
 		} else {
 			$this->setLastState('storage.message.upload');
@@ -165,15 +166,15 @@ class ImageStorage
 	 * @param bool $realPath - vrátit reálnou cestu? nebo pro použití v HTML?
 	 * @return string - cesta k souboru
 	 */
-	public function savePreparedImage(Image $image, $type = Image::JPEG, $realPath = false)
+	public function savePreparedImage(Image $image, $type = Image::JPEG, $realPath = false, $suffix = "Folder")
 	{
 		$fileName = Random::generate(30) . "." . ($type == Image::JPEG ? "jpg" : ($type == Image::PNG ? 'png' : 'gif'));
-		$uploadPath = $this->getFolderPath("upload") . DIRECTORY_SEPARATOR . $fileName;
+		$uploadPath = $this->getFolderPath("upload", $suffix) . DIRECTORY_SEPARATOR . $fileName;
 
 		$image->save($uploadPath, 100, $type);
 
 		if ($this->isBackupEnabled()) {
-			$image->save($this->getFolderPath("backup") . DIRECTORY_SEPARATOR . $fileName, 100, $type);
+			$image->save($this->getFolderPath("backup", $suffix) . DIRECTORY_SEPARATOR . $fileName, 100, $type);
 			$this->setLastState('storage.message.upload-backup');
 		} else {
 			$this->setLastState('storage.message.upload');
@@ -194,15 +195,15 @@ class ImageStorage
 	 * @param $path
 	 * @return bool - true pokud byl soubor smazan, false pokud ne
 	 */
-	public function deleteImage($path)
+	public function deleteImage($path, $suffix = "Folder")
 	{
 		if (strpos($path, '..') === false || strpos($path, '*') === false) {
 			$file = basename($path);
-			$uploadRemoved = @unlink($this->getFolderPath("upload") . DIRECTORY_SEPARATOR . $file);
+			$uploadRemoved = @unlink($this->getFolderPath("upload", $suffix) . DIRECTORY_SEPARATOR . $file);
 			$backupRemoved = false;
 
 			if ($this->isBackupEnabled()) {
-				$backupRemoved = @unlink($this->getFolderPath("backup") . DIRECTORY_SEPARATOR . $file);
+				$backupRemoved = @unlink($this->getFolderPath("backup", $suffix) . DIRECTORY_SEPARATOR . $file);
 			}
 
 			if ($uploadRemoved) {
@@ -268,12 +269,12 @@ class ImageStorage
 	 * @param string $type - typ složky - backup / upload
 	 * @return mixed
 	 */
-	private function getFolderPath($type = "upload")
+	private function getFolderPath($type = "upload", $suffix = "Folder")
 	{
-		if (!array_key_exists($type . 'Folder', $this->getConfiguration())) {
+		if (!array_key_exists($type . $suffix, $this->getConfiguration())) {
 			throw new \RuntimeException("Image Storage - $type folder is not configured!");
 		} else {
-			$path = $this->getConfiguration()[$type . 'Folder'];
+			$path = $this->getConfiguration()[$type . $suffix];
 			if (!file_exists($path)) {
 				mkdir($path, $this->parameters->getParam("dirPerm"), true);
 			}

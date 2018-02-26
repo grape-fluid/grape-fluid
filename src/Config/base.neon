@@ -71,6 +71,9 @@ parameters:
 	    maxsize: # respektuje aspect ratio
 	        width: 1024
 	        height: 768
+	    # moznost zadat vlastni backup / upload sety pomoci zmeny suffixu:
+	    # backup<Suffix> / upload<Suffix>
+	    # napriklad backupImages / uploadImages
 	    backupFolder: '%appDir%/resources/storage/'
 	    uploadFolder: '%wwwDir%/components/storage/'
 
