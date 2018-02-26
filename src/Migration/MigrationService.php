@@ -85,7 +85,7 @@ class MigrationService
 	 * Nazev prijima ve tvaru <Name>Module nebo 'project'
 	 *
 	 * @param $name
-	 * @return bool
+	 * @return string|bool
 	 */
 	public function createMigrationFile($name)
 	{
