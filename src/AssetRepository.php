@@ -187,6 +187,7 @@ class AssetRepository
 				continue;
 			}
 			$limits = [];
+			$negation = [];
 			$files = [];
 			foreach ($types as $type => $records) {
 				if ($type == "limit") {
@@ -195,7 +196,11 @@ class AssetRepository
 						if (!is_array($limit)) {
 							$limit = ["link" => $limit];
 						}
-						$limits[] = json_encode($limit);
+						if ((substr($limit['link'], 0, 1)) == "!") {
+							$negation[] = substr($limit['link'], 1);
+						} else {
+							$limits[] = json_encode($limit);
+						}
 					}
 				} else {
 					foreach ($records as $file) {
@@ -247,6 +252,11 @@ class AssetRepository
 					}
 				}
 			}
+
+			foreach ($files as $key => $file) {
+				$files[$key]['negation'] = $negation;
+			}
+
 			if (empty($limits)) {
 				$everywhere = json_encode(["link" => "*"]);
 				if (array_key_exists($everywhere, $list)) {
@@ -288,8 +298,16 @@ class AssetRepository
 
 				// Limit * na link se nevztahuje na administraci, assety pro Admin modul je treba vzdy explicitne uvest
 				// TODO: Seznam modulu, u kterych se musi explicitne udavat limity pro linky
-				if (($limit['link'] == "*" || preg_match("/^" . $limit['link'] . "/", $actualLink)) AND !($limit['link'] == "*" AND preg_match("/^:Admin:.*/", $actualLink))) {
+				if (($limit['link'] == "*" || $this->matchLinks($limit['link'], $actualLink)) AND !($limit['link'] == "*" AND $this->matchLinks(":Admin:.*", $actualLink))) {
 					foreach ($files as $path => $desc) {
+						if (isset($desc['negation'])) {
+							foreach ($desc['negation'] as $negation) {
+								if ($this->matchLinks($negation, $actualLink)) {
+									continue 2;
+								}
+							}
+						}
+
 						$isUrl = filter_var($path, FILTER_VALIDATE_URL);
 						if ((pathinfo($path, PATHINFO_EXTENSION) == $type && $desc['type'] != "copy") || ($isUrl && $desc['type'] == $type)) {
 							if (isset($limit['auth'])) {
@@ -354,6 +372,16 @@ class AssetRepository
 		if (!$relativePath) {
 			$this->cache->clean([Cache::NAMESPACES => ["Fluid.Assets"]]);
 		}
+	}
+
+
+	/**
+	 * @param $pattern
+	 * @param $subject
+	 * @return false|int
+	 */
+	private function matchLinks($pattern, $subject) {
+		return preg_match("/^" . $pattern . "/", $subject);
 	}
 
 
