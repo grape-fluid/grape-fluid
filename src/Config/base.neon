@@ -108,9 +108,6 @@ services:
 	- Grapesc\GrapeFluid\Application\ActionTemplateOverloading( %overrideTemplate% )
 
 assets:
-    config: # experimental
-        useMinifiedCSS: false
-        useMinifiedJS: false
     upload:
         copy:
             - ['%storage.backupFolder%*', '%storage.uploadFolder%*']

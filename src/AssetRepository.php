@@ -2,11 +2,9 @@
 
 namespace Grapesc\GrapeFluid;
 
-use MatthiasMullie\Minify\JS;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
 use Nette\Utils\Finder;
-use MatthiasMullie\Minify\CSS;
 use Symfony\Component\Console\Output\OutputInterface;
 
 
@@ -244,12 +242,7 @@ class AssetRepository
 							if (pathinfo($path, PATHINFO_EXTENSION) != $type && $type != "copy") {
 								continue;
 							}
-							if ((($this->isCssMinificationEnabled() && $type == "css") || ($this->isJsMinificationEnabled() && $type == "js")) && !$this->isMinified($path)) {
-								$minPath = $this->minifyFile($path);
-								$files[$minPath] = [ "time" => filemtime($minPath), "type" => $type, "asset" => $asset ];
-							} else {
-								$files[$path] = [ "time" => filemtime($path), "type" => $type, "asset" => $asset ];
-							}
+							$files[$path] = [ "time" => filemtime($path), "type" => $type, "asset" => $asset ];
 						}
 					}
 				}
@@ -363,38 +356,6 @@ class AssetRepository
 
 
 	/**
-	 * Vygeneruje minifikovaný soubor dle $path vedle původního souboru
-	 *
-	 * @param $path
-	 * @return mixed
-	 */
-	private function minifyFile($path)
-	{
-		$minifier = null;
-
-		$type = pathinfo($path, PATHINFO_EXTENSION);
-
-		if ($type == "css") {
-			$minifier = new CSS;
-		} elseif ($type == "js") {
-			$minifier = new JS;
-		} else {
-			throw new \LogicException("Minifier - Unsupported file of type '" . $type . "' for minification - '" . $path . "'");
-		}
-
-		$minifier->add($path, false);
-		$minPath = str_replace(($type == "css" ? ".css" : ".js"), ($type == "css" ? ".min.css" : ".min.js"), $path);
-
-		if ($file = fopen($minPath, 'w')) {
-			fwrite($file, $minifier->minify());
-			fclose($file);
-		}
-
-		return $minPath;
-	}
-
-
-	/**
 	 * @return bool|string
 	 */
 	public function getUploadPath()
@@ -409,34 +370,6 @@ class AssetRepository
 	private function getConfig()
 	{
 		return $this->assets['config'];
-	}
-
-
-	/**
-	 * @return mixed
-	 */
-	private function isCssMinificationEnabled()
-	{
-		return $this->getConfig()['useMinifiedCSS'];
-	}
-
-
-	/**
-	 * @return mixed
-	 */
-	private function isJsMinificationEnabled()
-	{
-		return $this->getConfig()['useMinifiedJS'];
-	}
-
-
-	/**
-	 * @param $path
-	 * @return bool
-	 */
-	private function isMinified($path)
-	{
-		return strpos($path, '.min.') !== false ? true : false;
 	}
 
 
