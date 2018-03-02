@@ -291,7 +291,6 @@ class AssetRepository
 				if (($limit['link'] == "*" || preg_match("/^" . $limit['link'] . "/", $actualLink)) AND !($limit['link'] == "*" AND preg_match("/^:Admin:.*/", $actualLink))) {
 					foreach ($files as $path => $desc) {
 						$isUrl = filter_var($path, FILTER_VALIDATE_URL);
-
 						if ((pathinfo($path, PATHINFO_EXTENSION) == $type && $desc['type'] != "copy") || ($isUrl && $desc['type'] == $type)) {
 							if (isset($limit['auth'])) {
 								$desc += ["auth" => $limit['auth']];
@@ -299,6 +298,10 @@ class AssetRepository
 							if (isset($limit['option'])) {
 								$desc += ["option" => $limit['option']];
 							}
+							if (isset($desc['destination'])) {
+								$path = str_replace($this->params->getParam("assetsDir"), "", $desc['destination']);
+							}
+
 							if ($isUrl) {
 								$assets[$path] = $desc + ["url" => true];
 							} else {
@@ -308,7 +311,6 @@ class AssetRepository
 					}
 				}
 			}
-
 			return $assets;
 		});
 	}

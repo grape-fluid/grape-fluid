@@ -142,6 +142,7 @@ class BaseBootstrap
 		$configurator->addParameters(["moduleDir"     => $this->fluidParameters->getParam("moduleDir")]);
 		$configurator->addParameters(["vendorDir"     => $this->fluidParameters->getParam("vendorDir")]);
 		$configurator->addParameters(["wwwDir"        => $this->fluidParameters->getParam("wwwDir")]);
+		$configurator->addParameters(["assetsDir"     => $this->fluidParameters->getParam("assetsDir")]);
 		$configurator->addParameters(["grapeFluidDir" => $this->fluidParameters->getParam("grapeFluidDir")]);
 
 		$configurator->setTempDirectory($this->fluidParameters->getParam("tempDir"));
