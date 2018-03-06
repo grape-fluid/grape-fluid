@@ -113,8 +113,12 @@ class BaseBootstrap
 		$this->container->addService('fluid.moduleRepository', $this->getModuleRepository());
 		$this->container->addService('fluid.pluginsContainer', $this->pluginsContainer);
 	}
-	
-	
+
+
+	/**
+	 * @throws Exception
+	 * @throws \Throwable
+	 */
 	protected function loadConfigurations()
 	{
 		$this->configurator->addConfig(__DIR__ . DIRECTORY_SEPARATOR . "Config" . DIRECTORY_SEPARATOR . "base.neon");
@@ -125,7 +129,7 @@ class BaseBootstrap
 
 		$this->configurator->addConfig($this->fluidParameters->getParam("configDir") . "config.neon");
 		
-		$this->moduleRepository->run();		
+		$this->moduleRepository->run();
 		
 		ConfiguratorBridge::loadConfigurations($this->pluginsContainer, $this->configurator);
 		
@@ -179,7 +183,7 @@ class BaseBootstrap
 	 */
 	protected function createModuleRepository()
 	{
-		$this->moduleRepository = new ModuleRepository($this->configurator, $this->fluidParameters, new Logger('test'));
+		$this->moduleRepository = new ModuleRepository($this->configurator, $this->fluidParameters);
 
 		/** @var SplFileInfo $module */
 		foreach (\Nette\Utils\Finder::findDirectories("*")->in($this->fluidParameters->getParam("moduleDir")) as $module) {
@@ -198,7 +202,12 @@ class BaseBootstrap
 		};
 		
 		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
-			$compiler->addExtension('assets', new AssetLoaderExtension($this->fluidParameters));
+			$compiler->addExtension('assets', new AssetLoaderExtension(
+				$this->fluidParameters->getParam("appDir"),
+				$this->fluidParameters->getParam("assetsDir"),
+				$this->fluidParameters->getParam("dirPerm"),
+				$this->fluidParameters->getParam("debug")
+			));
 		};
 
 		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
