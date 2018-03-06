@@ -72,7 +72,7 @@ class ModuleRepository
 	 *
 	 * @throws \Exception
 	 * @throws \Throwable
-	 * @return BaseModule[]
+	 * @return void
 	 */
 	public function run()
 	{
