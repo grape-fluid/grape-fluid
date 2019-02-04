@@ -75,6 +75,8 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 			if ($this->isFilterable()) {
 				$this->processFilter($selection, $filters);
 			}
+			
+			$this->extendPagination($selection);
 
 			return $selection->count("*");
 		});
@@ -245,6 +247,15 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 	 * @return void
 	 */
 	protected function extendDataLoader(Selection $selection)
+	{
+	}
+
+
+	/**
+	 * @param Selection $selection
+	 * @return void
+	 */
+	protected function extendPagination(Selection $selection)
 	{
 	}
 
