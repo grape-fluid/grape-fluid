@@ -202,12 +202,12 @@ class BaseBootstrap
 		};
 		
 		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
-			$compiler->addExtension('assets', new AssetLoaderExtension(
-				$this->fluidParameters->getParam("appDir"),
-				$this->fluidParameters->getParam("assetsDir"),
-				$this->fluidParameters->getParam("dirPerm"),
-				$this->fluidParameters->getParam("debug")
-			));
+			$compiler->addExtension('assets', new AssetLoaderExtension([
+				'wwwDir'    => $this->fluidParameters->getParam("wwwDir"),
+				'assetsDir' => $this->fluidParameters->getParam("assetsDir"),
+				'dirPerm'   => $this->fluidParameters->getParam("dirPerm"),
+				'debug'     => $this->fluidParameters->getParam("debug")
+			]));
 		};
 
 		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {

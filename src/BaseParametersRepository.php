@@ -92,7 +92,7 @@ class BaseParametersRepository
 		$defaultParams["tempDir"]       = $defaultParams["varDir"] . "temp" . DIRECTORY_SEPARATOR;
 		$defaultParams["logDir"]        = $defaultParams["varDir"] . "log" . DIRECTORY_SEPARATOR;
 		$defaultParams["wwwDir"]	    = $defaultParams["appDir"] . "www" . DIRECTORY_SEPARATOR;
-		$defaultParams["assetsDir"]	    = $defaultParams["wwwDir"] . "components" . DIRECTORY_SEPARATOR;
+		$defaultParams["assetsDir"]	    = "components";
 		$defaultParams["dirPerm"]       = 0777;
 		$defaultParams["debug"]         = false;
 

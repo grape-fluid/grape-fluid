@@ -14,7 +14,7 @@
   "require": {
     "php": ">= 5.6",
     "grape-fluid/application": "@dev",
-    "grape-fluid/asset-loader": "@dev",
+    "grape-fluid/asset-loader": "^0.6.0",
     "grape-fluid/form": "@dev",
     "grape-fluid/link-collector": "@dev",
     "grape-fluid/logger": "@dev",

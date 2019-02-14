@@ -102,7 +102,6 @@ services:
 	- Grapesc\GrapeFluid\FluidFormControl\FluidFormEventListener
 	- Grapesc\GrapeFluid\Model\MigrationModel
 	- Grapesc\GrapeFluid\MagicControl\Model\TemplatesModel
-	- Grapesc\GrapeFluid\ScriptCollector
 	- Grapesc\GrapeFluid\FluidFormControl\FluidFormFactory
 	- Grapesc\GrapeFluid\FluidGrid\FluidGridFactory
 	- Grapesc\GrapeFluid\Application\ActionTemplateOverloading( %overrideTemplate% )
