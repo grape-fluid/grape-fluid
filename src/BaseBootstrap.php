@@ -204,7 +204,7 @@ class BaseBootstrap
 		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
 			$compiler->addExtension('assets', new AssetLoaderExtension([
 				'wwwDir'    => $this->fluidParameters->getParam("wwwDir"),
-				'assetsDir' => $this->fluidParameters->getParam("assetsDir"),
+				'assetsDir' => $this->fluidParameters->getParam("assetsDirName"),
 				'dirPerm'   => $this->fluidParameters->getParam("dirPerm"),
 				'debug'     => $this->fluidParameters->getParam("debug")
 			]));
