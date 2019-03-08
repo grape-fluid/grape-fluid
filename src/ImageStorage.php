@@ -141,16 +141,25 @@ class ImageStorage
 	{
 		$fileName = $this->getUniqueFileName($file);
 		$uploadPath = $this->getFolderPath("upload", $suffix) . DIRECTORY_SEPARATOR . $fileName;
+		$backupPath = $this->getFolderPath("backup", $suffix) . DIRECTORY_SEPARATOR . $fileName;
+		$isGif = $this->getFileExtension($file) === "gif";
 
-		$live = $file->toImage();
-		$this->resizeImage($live, $maxW, $maxH);
-		$live->save($uploadPath, 100);
+		if ($isGif) {
+			$file->move($uploadPath);
+		} else {
+			$live = $file->toImage();
+			$this->resizeImage($live, $maxW, $maxH);
+			$live->save($uploadPath, 100);
+		}
 
 		if ($this->isBackupEnabled()) {
-			$backup = $file->toImage();
-			$this->resizeImage($backup, $maxW, $maxH);
-			// TODO: Configurable image quality
-			$backup->save($this->getFolderPath("backup", $suffix) . DIRECTORY_SEPARATOR . $fileName, 100);
+			if ($isGif) {
+				$file->move($backupPath);
+			} else {
+				$backup = $file->toImage();
+				$this->resizeImage($backup, $maxW, $maxH);
+				$backup->save($backupPath, 100);
+			}
 			$this->setLastState('storage.message.upload-backup');
 		} else {
 			$this->setLastState('storage.message.upload');
@@ -363,7 +372,13 @@ class ImageStorage
 	 */
 	private function getUniqueFileName(FileUpload $file)
 	{
-		return Random::generate(30) . "." . pathinfo($file->getName(), PATHINFO_EXTENSION);
+		return Random::generate(30) . "." . $this->getFileExtension($file);
+	}
+
+
+	private function getFileExtension(FileUpload $file)
+	{
+		return pathinfo($file->getName(), PATHINFO_EXTENSION);
 	}
 
 
