@@ -153,13 +153,7 @@ class ImageStorage
 		}
 
 		if ($this->isBackupEnabled()) {
-			if ($isGif) {
-				$file->move($backupPath);
-			} else {
-				$backup = $file->toImage();
-				$this->resizeImage($backup, $maxW, $maxH);
-				$backup->save($backupPath, 100);
-			}
+			copy($uploadPath, $backupPath);
 			$this->setLastState('storage.message.upload-backup');
 		} else {
 			$this->setLastState('storage.message.upload');
