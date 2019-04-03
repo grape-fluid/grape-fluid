@@ -30,7 +30,6 @@ parameters:
 		name: GrapeFluid
 		version: 0.1
 		minLogLevel: Monolog\Logger::INFO
-		layout: '%moduleDir%/CoreModule/templates/@layout.latte'
 
 	database:
 		host: localhost
