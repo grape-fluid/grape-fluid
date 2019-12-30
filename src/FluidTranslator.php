@@ -56,7 +56,7 @@ class FluidTranslator implements ITranslator
 			if (file_exists($file)) {
 				$neon = file_get_contents($file);
 				if ($neon) {
-					$dictionary = \Nette\DI\Config\Helpers::merge($dictionary, \Nette\Neon\Neon::decode($neon));
+					$dictionary = \Nette\DI\Config\Helpers::merge(\Nette\Neon\Neon::decode($neon), $dictionary);
 				}
 			}
 		}
