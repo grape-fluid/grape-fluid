@@ -126,7 +126,7 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 		}
 
 		foreach ($this->args['filterable'] AS $columnName) {
-			if (key_exists($columnName,  $columns)) {
+			if ($columns->offsetExists($columnName)) {
 				$column = $columns[$columnName];
 
 				if (!$container->getComponent($columnName, false)) {
