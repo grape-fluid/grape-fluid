@@ -91,7 +91,14 @@ class FluidTranslator implements ITranslator
 		}
 
 		if ($count !== null) {
-			$trans = str_replace("%count%", $count, $this->symfonyTranslator->transChoice($trans, $count));
+			if (is_array($count)) {
+				$transParams = $count;
+				$count       = $transParams['count'] ?? 0;
+			} else {
+				$transParams = [];
+			}
+
+			$trans = str_replace("%count%", $count, $this->symfonyTranslator->transChoice($trans, $count, $transParams));
 		}
 
 		return $trans;
