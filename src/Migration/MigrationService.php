@@ -36,16 +36,17 @@ class MigrationService
 	/**
 	 * @param OutputInterface|null $output
 	 * @param bool $reinstall
+	 * @param bool $force
 	 * @return bool
 	 */
-	public function up(OutputInterface $output = null, $reinstall = false)
+	public function up(OutputInterface $output = null, $reinstall = false, $force = false)
 	{
 		if (!$this->checkConnection($output)) {
 			return false;
 		}
 
 		$this->checkStructure($output);
-		$this->updateMigrations($output, $reinstall);
+		$this->updateMigrations($output, $reinstall, $force);
 		
 		return true;
 	}
@@ -125,8 +126,9 @@ class MigrationService
 	/**
 	 * @param OutputInterface|null $output
 	 * @param bool $reinstall
+	 * @param bool $force
 	 */
-	private function updateMigrations(OutputInterface $output = null, $reinstall = false)
+	private function updateMigrations(OutputInterface $output = null, $reinstall = false, $force = false)
 	{
 		$migratedFiles = $this->getMigratedFiles();
 
@@ -161,9 +163,13 @@ class MigrationService
 					}
 
 					try {
-						$count = $this->importFile($module->getModuleName(), $file);
+						$count = $this->importFile($output, $module->getModuleName(), $file, $force);
 						if ($output) {
-							$output->writeln("<info>OK, $count queries</info>");
+							if ($count) {
+								$output->writeln("<info>OK, $count queries</info>");
+							} else {
+								$output->writeln("<comment>No queries executed</comment>");
+							}
 						}
 
 					} catch (MigrationException $e) {
@@ -236,11 +242,13 @@ class MigrationService
 
 
 	/**
+	 * @param OutputInterface|null $output
 	 * @param string $moduleName
 	 * @param \SplFileInfo $file
+	 * @param bool $force
 	 * @return int
 	 */
-	private function importFile($moduleName, \SplFileInfo $file)
+	private function importFile(OutputInterface $output, $moduleName, \SplFileInfo $file, $force = false)
 	{
 		if (!$migration = $this->migrationModel->getItemBy([$moduleName, $file->getFilename()], "module = ? AND name = ?")) {
 			$migration = $this->migrationModel->insert(['module' => $moduleName, 'name' => $file->getFilename(), 'last_update' => new DateTime]);
@@ -251,10 +259,14 @@ class MigrationService
 		if ($file->getExtension() == 'sql') {
 			try {
 				$this->migrationModel->getConnection()->getPdo()->beginTransaction();
-				$count = $this->executeSqlFormFile($file);
-				$this->migrationModel->getConnection()->getPdo()->commit();
+				$count = $this->executeSqlFormFile($output, $file, $force);
+				if ($this->migrationModel->getConnection()->getPdo()->inTransaction()) {
+					$this->migrationModel->getConnection()->getPdo()->commit();
+				}
 			} catch (\Exception $e) {
-				$this->migrationModel->getConnection()->getPdo()->rollBack();
+				if ($this->migrationModel->getConnection()->getPdo()->inTransaction()) {
+					$this->migrationModel->getConnection()->getPdo()->rollBack();
+				}
 				throw new MigrationException($e->getMessage());
 			}
 
@@ -323,10 +335,12 @@ class MigrationService
 
 
 	/**
+	 * @param \OutputInterface|null $output
 	 * @param \SplFileInfo $file
+	 * @param bool $force
 	 * @return int
 	 */
-	private function executeSqlFormFile(\SplFileInfo $file)
+	private function executeSqlFormFile(OutputInterface $output, \SplFileInfo $file, $force = false)
 	{
 		//Inspired in DIBI
 		@set_time_limit(0); // intentionally @
@@ -348,16 +362,38 @@ class MigrationService
 				$delimiter = substr($s, 10);
 			} elseif (substr($s, -strlen($delimiter)) === $delimiter) {
 				$sql .= substr($s, 0, -strlen($delimiter));
-				$this->migrationModel->getConnection()->getPdo()->query($sql);
+				
+				try {
+					$this->migrationModel->getConnection()->getPdo()->query($sql);
+					$count++;
+				} catch (\Throwable $e) {
+					if ($force) {
+						if ($output) {
+							$output->writeln("<error>{$e->getMessage()}</error>");
+						}
+					} else {
+						throw $e;
+					}
+				}
+				
 				$sql = '';
-				$count++;
 			} else {
 				$sql .= $s . "\n";
 			}
 		}
 		if (trim($sql) !== '') {
-			$this->migrationModel->getConnection()->getPdo()->query($sql);
-			$count++;
+			try {
+				$this->migrationModel->getConnection()->getPdo()->query($sql);
+				$count++;
+			} catch (\Throwable $e) {
+				if ($force) {
+					if ($output) {
+						$output->writeln("<error>{$e->getMessage()}</error>");
+					}
+				} else {
+					throw $e;
+				}
+			}
 		}
 		fclose($handle);
 
