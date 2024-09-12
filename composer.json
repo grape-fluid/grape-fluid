@@ -22,7 +22,7 @@
     "grape-fluid/plugin-system": "@dev",
     "grape-fluid/skeleton": "@dev",
     "grape-fluid/configuration": "@dev",
-    "nette/nette": "^2.4",
+    "nette/nette": "^3.0",
     "uestla/twigrid": "11.2.3",
     "symfony/translation": "^7.1.0",
     "symfony/event-dispatcher": "^7.1.0",
