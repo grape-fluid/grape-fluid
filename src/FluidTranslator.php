@@ -22,15 +22,15 @@ class FluidTranslator implements ITranslator
 
 	/** @var array */
 	private $config;
-	
-	
-	function __construct(array $config, \Nette\Caching\IStorage $cacheStorage)
+
+
+	function __construct(array $config = [], ?\Nette\Caching\IStorage $cacheStorage = null)
 	{
 		$this->cache = new \Nette\Caching\Cache($cacheStorage, 'Fluid.Translator');
 		
 		$translator = new \Symfony\Component\Translation\Translator($this->localeName);
 		$translator->addLoader('array', new \Symfony\Component\Translation\Loader\ArrayLoader());
-		$translator->addResource('array', $this->getDictionary($config['locales']), $this->localeName);
+		$translator->addResource('array', $this->getDictionary($config['locales'] ?? null), $this->localeName);
 
 		$this->config = $config;
 		
@@ -42,7 +42,7 @@ class FluidTranslator implements ITranslator
 	 * @param array $configsFiles
 	 * @return array
 	 */
-	private function getDictionary(array $configsFiles)
+	private function getDictionary(?array $configsFiles = [])
 	{
 		$fromCache = $this->cache->load('dictionary');
 		
@@ -51,18 +51,20 @@ class FluidTranslator implements ITranslator
 		}
 		
 		$dictionary = [];
-		
-		foreach ($configsFiles AS $file) {
-			if (file_exists($file)) {
-				$neon = file_get_contents($file);
-				if ($neon) {
-					$dictionary = \Nette\DI\Config\Helpers::merge(\Nette\Neon\Neon::decode($neon), $dictionary);
+
+		if ($configsFiles) {
+			foreach ($configsFiles as $file) {
+				if (file_exists($file)) {
+					$neon = file_get_contents($file);
+					if ($neon) {
+						$dictionary = \Nette\DI\Config\Helpers::merge(\Nette\Neon\Neon::decode($neon), $dictionary);
+					}
 				}
 			}
 		}
-		
+
 		$this->cache->save('dictionary', $dictionary);
-		
+
 		return $dictionary;
 	}
 
@@ -72,13 +74,10 @@ class FluidTranslator implements ITranslator
 	 *
 	 * Pokud chybí záznam ve slovníku a catchUntranslated (v configu) je true,
 	 * zaloguje tento záznam do var/log/untranslated.neon
-	 *
-	 * @param $message
-	 * @param null $count
-	 * @return string
 	 */
-	public function translate($message, $count = NULL)
+	public function translate(string|\Stringable $message, mixed ...$parameters): string|\Stringable
 	{
+		$count = $parameters[0] ?? null;
 		$trans = $this->symfonyTranslator->trans($message, [], null, $this->localeName);
 
 		if ($this->config['catchUntranslated'] && $trans == $message) {

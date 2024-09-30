@@ -42,7 +42,7 @@ class FluidGridFactory
 	 */
 	public function create($fluidGridClass, $model = null)
 	{
-		$reflection = new ClassType($fluidGridClass);
+		$reflection = new \ReflectionClass($fluidGridClass);
 		if ($reflection->isSubclassOf(FluidGrid::class)) {
 
 			if (is_null($model)) {

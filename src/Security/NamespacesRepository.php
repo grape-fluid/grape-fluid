@@ -40,7 +40,13 @@ class NamespacesRepository
 	private $logger;
 
 
-	public function __construct(array $params, Container $container, IUserStorage $userStorage, EventDispatcher $eventDispatcher, LoggerInterface $logger)
+	function __construct(
+		array $params = [],
+		?Container $container = null,
+		?IUserStorage $userStorage = null,
+		?EventDispatcher $eventDispatcher = null,
+		?LoggerInterface $logger = null,
+	)
 	{
 		$this->userStorage     = $userStorage;
 		$this->eventDispatcher = $eventDispatcher;
@@ -133,7 +139,7 @@ class NamespacesRepository
 			}
 
 			try {
-				$this->eventDispatcher->dispatch('fluid.security.namespaces.roles', new NamespacesRolesEvent($this->rolesRepository));
+				$this->eventDispatcher->dispatch(new NamespacesRolesEvent($this->rolesRepository), 'fluid.security.namespaces.roles');
 			} catch (\Exception $e) {
 
 				$this->logger->error('Cannot get roles.', [ 'excpetion' => $e]);
@@ -166,13 +172,17 @@ class NamespacesRepository
 	 * @param $params
 	 * @param Container $container
 	 */
-	protected function build($params, Container $container)
+	protected function build(array $params, Container $container)
 	{
 		foreach ($params AS $namespace => $config) {
 			$an = new AuthNamespace($namespace);
 
-			$an->setAuthenticator($container->getService("fluid.security.$namespace.authenticator"));
-			$an->setAuthorizator($container->getService("fluid.security.$namespace.authorizator"));
+			$serviceName = "fluid.security.$namespace.authenticator";
+			$authenticator = $container->getService($serviceName);
+			$an->setAuthenticator($authenticator);
+			$serviceName = "fluid.security.$namespace.authorizator";
+			$authorizator = $container->getService($serviceName);
+			$an->setAuthorizator($authorizator);
 
 			if (key_exists('roles', $config)) {
 				$an->setRoles($config['roles']);

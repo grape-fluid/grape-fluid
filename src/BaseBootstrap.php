@@ -33,9 +33,9 @@ class BaseBootstrap
 	/** @var DI\Container */
 	private $container;
 	
-	/** @var Nette\Configurator */
+	/** @var Nette\Bootstrap\Configurator */
 	private $configurator;
-	
+
 	/** @var ModuleRepository */
 	private $moduleRepository;
 
@@ -139,7 +139,7 @@ class BaseBootstrap
 	
 	protected function createConfigurator()
 	{
-		$configurator = new Nette\Configurator;
+		$configurator = new Nette\Bootstrap\Configurator;
 		$configurator->addParameters(["appDir"        => $this->fluidParameters->getParam('appDir')]);
 		$configurator->addParameters(["logDir"        => $this->fluidParameters->getParam("logDir")]);
 		$configurator->addParameters(["tempDir"       => $this->fluidParameters->getParam("tempDir")]);
@@ -197,11 +197,11 @@ class BaseBootstrap
 	 */
 	protected function createContainer()
 	{
-		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
+		$this->configurator->onCompile[] = function(Nette\Bootstrap\Configurator $configurator, DI\Compiler $compiler) {
 			$compiler->addExtension('fluid', new FluidExtension($this->appDir));
 		};
-		
-		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
+
+		$this->configurator->onCompile[] = function(Nette\Bootstrap\Configurator $configurator, DI\Compiler $compiler) {
 			$compiler->addExtension('assets', new AssetLoaderExtension([
 				'wwwDir'    => $this->fluidParameters->getParam("wwwDir"),
 				'assetsDir' => $this->fluidParameters->getParam("assetsDirName"),
@@ -210,7 +210,7 @@ class BaseBootstrap
 			]));
 		};
 
-		$this->configurator->onCompile[] = function(Nette\Configurator $configurator, DI\Compiler $compiler) {
+		$this->configurator->onCompile[] = function(Nette\Bootstrap\Configurator $configurator, DI\Compiler $compiler) {
 			$compiler->addExtension('extenders', new ExtenderExtension());
 		};
 		

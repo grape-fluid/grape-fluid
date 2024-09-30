@@ -21,7 +21,7 @@ class ExtenderExtension extends CompilerExtension
 				$builder->addDefinition("fluid.extender.$tag.$key")
 					->setClass($extender)
 					->setAutowired(false)
-					->setInject(true)
+//					->setInject(true)
 					->addTag("fluid.extender.$tag");
 			}
 		}

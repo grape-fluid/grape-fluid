@@ -28,40 +28,43 @@ class FluidExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$builder->addDefinition($this->prefix('parameters'))
-			->setClass(BaseParametersRepository::class)
-			->setDynamic();
-		
+			->setClass(BaseParametersRepository::class);
+
 		$builder->addDefinition($this->prefix('translator'))
-			->setClass(FluidTranslator::class, [$builder->parameters['translator']]);
-		
+			->setFactory(FluidTranslator::class, [$builder->parameters['translator']]);
+
 		$builder->addDefinition($this->prefix('eventDispatcher'))
 			->setClass(EventDispatcher::class)
 			->addSetup('addServiceListeners', [$builder->parameters['eventListeners']]);
 		
 		$builder->addDefinition($this->prefix('migration'))
-			->setClass(MigrationService::class)
-			->setDynamic();
+			->setClass(MigrationService::class);
 
 		$builder->addDefinition($this->prefix('moduleRepository'))
-			->setClass(ModuleRepository::class)
-			->setDynamic();
+			->setClass(ModuleRepository::class);
 
 		foreach ($this->getConfig()['security'] as $namespace => $config) {
+			if (is_array($config['authorizator'])) {
+				$authorizatorClass = $config['authorizator']['class'];
+				$authorizatorArguments = $config['authorizator']['arguments'] ?? [];
+			} else {
+				$authorizatorClass = is_object($config['authorizator']) ? $config['authorizator']->getEntity() : $config['authorizator'];
+				$authorizatorArguments = is_object($config['authorizator']) ? $config['authorizator']->arguments : [];
+			}
+
 			$builder->addDefinition($this->prefix("security.$namespace.authorizator"))
-				->setClass(is_object($config['authorizator']) ? $config['authorizator']->getEntity() : $config['authorizator'])
-				->setArguments(is_object($config['authorizator']) ? $config['authorizator']->arguments : [])
-				->setAutowired(false)
-				->setInject(false);
+				->setClass($authorizatorClass)
+				->setArguments($authorizatorArguments)
+				->setAutowired(false);
 
 			$builder->addDefinition($this->prefix("security.$namespace.authenticator"))
 				->setClass(is_object($config['authenticator']) ? $config['authenticator']->getEntity() : $config['authenticator'])
 				->setArguments(is_object($config['authenticator']) ? $config['authenticator']->arguments : [])
-				->setAutowired(false)
-				->setInject(false);
+				->setAutowired(false);
 		}
 	
 		$builder->addDefinition($this->prefix('security.repository'))
-			->setClass(NamespacesRepository::class, [$this->getConfig()['security']]);
+			->setFactory(NamespacesRepository::class, [$this->getConfig()['security']]);
 	}
 	
 }

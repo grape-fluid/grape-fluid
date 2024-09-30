@@ -137,7 +137,7 @@ trait CachedModel
 	 * @param null $assocBy - nepoužitý, pouze pro soulad metod
 	 * @return array
 	 */
-	public function getAllItems($assocBy = null)
+	public function getAllItems(string|array|null $assocBy = null)
 	{
 		return $this->getTableCache();
 	}
