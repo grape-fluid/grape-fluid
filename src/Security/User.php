@@ -16,7 +16,7 @@ class User extends Nette\Security\User
 	 * @param $privilege - Pouze pro zachování kompatibility s Nette\Security\User
 	 * @return bool
 	 */
-	public function isAllowed($resource = Nette\Security\IAuthorizator::ALL, $privilege = Nette\Security\IAuthorizator::ALL)
+	public function isAllowed($resource = Nette\Security\IAuthorizator::ALL, $privilege = Nette\Security\IAuthorizator::ALL): bool
 	{
 		$defaultNamespace = null;
 

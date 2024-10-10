@@ -29,7 +29,7 @@ class ModuleRepository
 	private $isSorted = false;
 
 
-	public function __construct(Configurator $configurator, BaseParametersRepository $params)
+	public function __construct(?Configurator $configurator = null, ?BaseParametersRepository $params = null)
 	{
 		$this->configurator = $configurator;
 		$this->params = $params;

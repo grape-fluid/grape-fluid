@@ -14,9 +14,9 @@ session:
 	autoStart: true
 
 latte:
-    macros:
-        - Grapesc\GrapeFluid\MagicControl\MagicControlMacro::install
-        - Grapesc\GrapeFluid\LatteMacro\IfModuleMacro
+	extensions:
+		- Grapesc\GrapeFluid\MagicControl\MagicControlMacro
+		- Grapesc\GrapeFluid\LatteMacro\IfModuleMacro
 
 database:
 	dsn: 'mysql:host=%database.host%;dbname=%database.dbname%'

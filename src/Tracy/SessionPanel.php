@@ -35,7 +35,7 @@ class SessionPanel implements Tracy\IBarPanel
 				TNRBTYBofSsYYL/jAjy+9w0SRJmOs+p8nEpAgkiHura21kMKMAhdBSdYNcBg1t6oFLrOjoGU2A
 				g2oggYDOXHVAhvffhgMC6x7wAs7w8G8hVJQoSHgIHfAQBwSFDP+TRer+MpnysYaAiMgISCQXL5
 				e8IT8QQJcpPLC14XaRk0s9fb7u5B3R6dfxPcUkFVVpaqAAAAAElFTkSuQmCC\" />" .
-				" Sessions (" . $this->session->getIterator()->count() . ")" .
+				" Sessions (" . count($this->session->getSectionNames()) . ")" .
 				"</span>";
 	}
 
@@ -57,7 +57,7 @@ class SessionPanel implements Tracy\IBarPanel
 					</style>
 					<div class='tracy-inner tracy-inner-overflow tracy-sessionPanel'>";
 
-		foreach ($this->session->getIterator() as $sectionName) {
+		foreach ($this->session->getSectionNames() as $sectionName) {
 			if ($sectionName == "Nette.Http.UserStorage/") {
 				continue;
 			} else {

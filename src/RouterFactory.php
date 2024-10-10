@@ -12,10 +12,9 @@ class RouterFactory
 {
 
 	/**
-	 * @param array $parameters
-	 * @return IRouter
+	 * @param array<mixed> $parameters
 	 */
-	public static function createRouter(array $parameters)
+	public static function createRouter(array $parameters): IRouter
 	{
 		$router = new RouteList();
 

@@ -3,7 +3,7 @@
 namespace Grapesc\GrapeFluid\Security;
 
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @author Jiri Novy <novy@grapesc.cz>

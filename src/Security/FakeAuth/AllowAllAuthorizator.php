@@ -10,7 +10,7 @@ class AllowAllAuthorizator implements IAuthorizator
 {
 	
 	/** @inheritdoc */
-	function isAllowed($role, $resource, $privilege)
+	function isAllowed(?string $role, ?string $resource, ?string $privilege): bool
 	{
 		return true;
 	}

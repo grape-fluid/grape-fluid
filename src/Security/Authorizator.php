@@ -20,7 +20,7 @@ class Authorizator implements IAuthorizator
 
 	
 	/** @inheritdoc */
-	function isAllowed($role, $resource, $privilege)
+	function isAllowed(?string $role, ?string $resource, ?string $privilege): bool
 	{
 		$params       = [];
 		$authorizator = $this->namespacesRepository->getAuthorizator($params);

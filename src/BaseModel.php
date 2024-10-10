@@ -174,8 +174,12 @@ abstract class BaseModel
 	 * @param string|null $assocBy
 	 * @return array|\Nette\Database\Table\IRow[]|\stdClass
 	 */
-	public function getAllItems($assocBy = null)
+	public function getAllItems(string|array|null $assocBy = null)
 	{
+		if (is_array($assocBy)) {
+			$assocBy = implode(',', $assocBy);
+		}
+
 		return $assocBy ? $this->getTableSelection()->fetchAssoc($assocBy) : $this->getTableSelection()->fetchAll();
 	}
 

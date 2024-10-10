@@ -10,7 +10,7 @@ class BaseParametersRepository
 	protected $params = [];
 	
 	
-	public function __construct($appDir, array $directoriesParamsForCheck = [])
+	public function __construct(string $appDir = '', array $directoriesParamsForCheck = [])
 	{
 		$this->setDefaultParams($appDir);
 		$this->loadParamsFromConfig($this->params['configDir'] . "config.php");
@@ -80,7 +80,7 @@ class BaseParametersRepository
 	 * @param string $appDir
 	 * @return array
 	 */
-	private function setDefaultParams($appDir)
+	private function setDefaultParams(string $appDir): void
 	{
 		$defaultParams                  = [];
 		$defaultParams["appDir"]        = $appDir . DIRECTORY_SEPARATOR;

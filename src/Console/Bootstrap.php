@@ -9,6 +9,7 @@ use Nette\Utils\Finder;
 use SplFileInfo;
 use Symfony\Component\Console\Application AS ConsoleApplication;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,7 +44,7 @@ class Bootstrap extends ConsoleApplication
 	/**
 	 * {@inheritdoc}
 	 */
-	public function find($name)
+	public function find($name): Command
 	{
 		$command = parent::find($name);
 		if ($command AND !$this->withoutDIContainer AND !$command instanceof WithoutContainerCommand AND $command->getName() !== 'list') {
@@ -56,7 +57,7 @@ class Bootstrap extends ConsoleApplication
 	/**
 	 * {@inheritdoc}
 	 */
-	public function doRun(InputInterface $input, OutputInterface $output)
+	public function doRun(InputInterface $input, OutputInterface $output): int
 	{
 		if (!$this->isInitialized) {
 			$this->bootstrap = new BaseBootstrap($this->appDir, false);
@@ -74,7 +75,7 @@ class Bootstrap extends ConsoleApplication
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function configureIO(InputInterface $input, OutputInterface $output)
+	protected function configureIO(InputInterface $input, OutputInterface $output): void
 	{
 		if ($input->hasParameterOption('--without-container')) {
 			$this->withoutDIContainer = true;
@@ -87,7 +88,7 @@ class Bootstrap extends ConsoleApplication
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
+	protected function doRunCommand(Command $command, InputInterface $input, OutputInterface $output): int
 	{
 		if (!$this->withoutDIContainer AND !$command instanceof WithoutContainerCommand AND $command->getName() !== 'list') {
 			$this->bootstrap->getContainer()->callInjects($command);
@@ -100,7 +101,7 @@ class Bootstrap extends ConsoleApplication
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function getDefaultInputDefinition()
+	protected function getDefaultInputDefinition(): InputDefinition
 	{
 		$inputDefinition = parent::getDefaultInputDefinition();
 		$inputDefinition->addOption(new InputOption('--without-container', '', InputOption::VALUE_NONE, 'Run command without creating DI Container'));
