@@ -4,6 +4,7 @@ namespace Grapesc\GrapeFluid;
 
 use Grapesc\GrapeFluid\Security\NamespacesRepository;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\Statement;
 
 
 /**
@@ -45,21 +46,29 @@ class FluidExtension extends CompilerExtension
 
 		foreach ($this->getConfig()['security'] as $namespace => $config) {
 			if (is_array($config['authorizator'])) {
-				$authorizatorClass = $config['authorizator']['class'];
-				$authorizatorArguments = $config['authorizator']['arguments'] ?? [];
+				$authorizatorFactory = new Statement($config['authorizator']['class'], $config['authorizator']['arguments'] ?? []);
+			} elseif (is_object($config['authorizator'])) {
+				$authorizatorFactory = $config['authorizator'];
 			} else {
-				$authorizatorClass = is_object($config['authorizator']) ? $config['authorizator']->getEntity() : $config['authorizator'];
-				$authorizatorArguments = is_object($config['authorizator']) ? $config['authorizator']->arguments : [];
+				$authorizatorFactory = $config['authorizator'];
 			}
 
 			$builder->addDefinition($this->prefix("security.$namespace.authorizator"))
-				->setClass($authorizatorClass)
-				->setArguments($authorizatorArguments)
+				->setFactory($authorizatorFactory)
+//				->setArguments(is_object($config['authorizator']) ? $config['authorizator']->arguments : [])
 				->setAutowired(false);
 
+			if (is_array($config['authenticator'])) {
+				$authenticatorFactory = new Statement($config['authenticator']['class'], $config['authenticator']['arguments'] ?? []);
+			} elseif (is_object($config['authenticator'])) {
+				$authenticatorFactory = $config['authenticator'];
+			} else {
+				$authenticatorFactory = $config['authenticator'];
+			}
+
 			$builder->addDefinition($this->prefix("security.$namespace.authenticator"))
-				->setClass(is_object($config['authenticator']) ? $config['authenticator']->getEntity() : $config['authenticator'])
-				->setArguments(is_object($config['authenticator']) ? $config['authenticator']->arguments : [])
+				->setFactory($authenticatorFactory)
+//				->setArguments(is_object($config['authenticator']) ? $config['authenticator']->arguments : [])
 				->setAutowired(false);
 		}
 	

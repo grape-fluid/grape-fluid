@@ -75,10 +75,10 @@ class FluidTranslator implements ITranslator
 	 * Pokud chybí záznam ve slovníku a catchUntranslated (v configu) je true,
 	 * zaloguje tento záznam do var/log/untranslated.neon
 	 */
-	public function translate(string|\Stringable $message, mixed ...$parameters): string|\Stringable
+	public function translate(string|int|\Stringable $message, mixed ...$parameters): string|\Stringable
 	{
 		$count = $parameters[0] ?? null;
-		$trans = $this->symfonyTranslator->trans($message, [], null, $this->localeName);
+		$trans = $this->symfonyTranslator->trans((string) $message, [], null, $this->localeName);
 
 		if ($this->config['catchUntranslated'] && $trans == $message) {
 			$file = fopen($this->config['catchFile'], 'a');
@@ -94,13 +94,38 @@ class FluidTranslator implements ITranslator
 				$transParams = $count;
 				$count       = $transParams['count'] ?? 0;
 			} else {
-				$transParams = [];
+				$transParams = ['%count%' => $count];
 			}
 
-			$trans = str_replace("%count%", $count, $this->symfonyTranslator->transChoice($trans, $count, $transParams));
+			$trans = $this->symfonyTranslator->trans($this->symfonyOldPluralize($trans, $count), $transParams);
 		}
 
 		return $trans;
+	}
+	
+	
+	private function symfonyOldPluralize(string $message, int $count): string
+	{
+		$parts = explode('|', $message);
+
+		foreach ($parts as $part) {
+			if (preg_match('/^\{(\d+)\}\s*(.*)$/', $part, $matches)) { // {0}
+				if ($count == $matches[1]) {
+					return str_replace('%count%', $count, $matches[2]);
+				}
+			} elseif (preg_match('/^\{(\d+(?:,\d+)*)\}\s*(.*)$/', $part, $matches)) { // {2,3,4}
+				$numbers = explode(',', $matches[1]);
+				if (in_array($count, $numbers)) {
+					return str_replace('%count%', $count, $matches[2]);
+				}
+			} elseif (preg_match('/^\[(\d+),Inf\[\s*(.*)$/', $part, $matches)) { // [5,Inf[
+				if ($count >= $matches[1]) {
+					return str_replace('%count%', $count, $matches[2]);
+				}
+			}
+		}
+
+		return str_replace('%count%', $count, end($parts));
 	}
 
 }

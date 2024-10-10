@@ -6,8 +6,8 @@ use Grapesc\GrapeFluid\EventDispatcher;
 use Grapesc\GrapeFluid\FluidTranslator;
 use Grapesc\GrapeFluid\Logger;
 use Grapesc\GrapeFluid\Model\BaseModel;
+use Grapesc\GrapeFluid\Utils\Annotation;
 use Nette\DI\Container;
-use Nette\Reflection\ClassType;
 use Nette\Utils\Reflection;
 
 class FluidGridFactory
@@ -48,17 +48,17 @@ class FluidGridFactory
 			if (is_null($model)) {
 				$type = null;
 
-				if ($reflection->hasAnnotation('model')) {
-					$type = Reflection::expandClassName($reflection->getAnnotation('model'), $reflection);
-				} elseif ($reflection->getProperty('model')->getAnnotation('var') != 'BaseModel') {
-					$type = Reflection::expandClassName($reflection->getProperty('model')->getAnnotation('var'), $reflection);
+				if (Annotation::hasAnnotation($reflection, 'model')) {
+					$type = Reflection::expandClassName(Annotation::getAnnotation($reflection, 'model'), $reflection);
+				} elseif (Annotation::getAnnotation($reflection->getProperty('model'), 'var') != 'BaseModel') {
+					$type = Reflection::expandClassName(Annotation::getAnnotation($reflection->getProperty('model'), 'var'), $reflection);
 				}
 
 				if ($type) {
 					if (class_exists($type)) {
-						$modelReflection = new ClassType($type);
-					} elseif (class_exists($reflection->getAnnotation('model'))) {
-						$modelReflection = new ClassType($reflection->getAnnotation('model'));
+						$modelReflection = new \ReflectionClass($type);
+					} elseif (class_exists(Annotation::getAnnotation($reflection, 'model'))) {
+						$modelReflection = new \ReflectionClass(Annotation::getAnnotation($reflection, 'model'));
 					}
 
 					if ($modelReflection->isInstantiable() AND $this->container->getByType($modelReflection->getName(), false)) {

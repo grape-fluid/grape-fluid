@@ -3,10 +3,12 @@
 namespace Grapesc\GrapeFluid\Security;
 
 
+use Symfony\Contracts\EventDispatcher\Event;
+
 /**
  * @author Jiri Novy <novy@grapesc.cz>
  */
-class NamespacesRolesEvent
+class NamespacesRolesEvent extends Event
 {
 
 	/** @var RolesRepository */

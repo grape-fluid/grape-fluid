@@ -371,4 +371,17 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 		return $modelColumns;
 	}
 
+	/** @return \ArrayIterator<string, Column>|null */
+	public function getColumns(): ?\ArrayIterator
+	{
+		return isset($this['columns']) ? new \ArrayIterator($this['columns']->getComponents()) : null;
+	}
+
+
+	/** @return \ArrayIterator<string, RowAction>|null */
+	public function getRowActions(): ?\ArrayIterator
+	{
+		return isset($this['rowActions']) ? new \ArrayIterator($this['rowActions']->getComponents()) : null;
+	}
+
 }

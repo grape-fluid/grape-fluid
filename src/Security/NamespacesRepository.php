@@ -4,10 +4,9 @@ namespace Grapesc\GrapeFluid\Security;
 
 use Grapesc\GrapeFluid\EventDispatcher;
 use Nette\DI\Container;
-use Nette\Http\UserStorage;
 use Nette\Security\IAuthenticator;
 use Nette\Security\IAuthorizator;
-use Nette\Security\IUserStorage;
+use Nette\Security\UserStorage;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -43,7 +42,7 @@ class NamespacesRepository
 	function __construct(
 		array $params = [],
 		?Container $container = null,
-		?IUserStorage $userStorage = null,
+		?UserStorage $userStorage = null,
 		?EventDispatcher $eventDispatcher = null,
 		?LoggerInterface $logger = null,
 	)
@@ -177,12 +176,15 @@ class NamespacesRepository
 		foreach ($params AS $namespace => $config) {
 			$an = new AuthNamespace($namespace);
 
-			$serviceName = "fluid.security.$namespace.authenticator";
-			$authenticator = $container->getService($serviceName);
-			$an->setAuthenticator($authenticator);
-			$serviceName = "fluid.security.$namespace.authorizator";
-			$authorizator = $container->getService($serviceName);
-			$an->setAuthorizator($authorizator);
+			$an->setAuthenticator($container->getService("fluid.security.$namespace.authenticator"));
+			$an->setAuthorizator($container->getService("fluid.security.$namespace.authorizator"));
+
+//			$serviceName = "fluid.security.$namespace.authenticator";
+//			$authenticator = $container->getService($serviceName);
+//			$an->setAuthenticator($authenticator);
+//			$serviceName = "fluid.security.$namespace.authorizator";
+//			$authorizator = $container->getService($serviceName);
+//			$an->setAuthorizator($authorizator);
 
 			if (key_exists('roles', $config)) {
 				$an->setRoles($config['roles']);
