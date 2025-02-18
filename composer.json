@@ -13,8 +13,8 @@
   ],
   "require": {
     "php": ">= 8.2",
-    "grape-fluid/application": "dev-master",
-    "grape-fluid/asset-loader": "dev-master",
+    "grape-fluid/application": "^0.7.0",
+    "grape-fluid/asset-loader": "^0.7.0",
     "grape-fluid/form": "dev-master",
     "grape-fluid/link-collector": "dev-master",
     "grape-fluid/logger": "@dev",
