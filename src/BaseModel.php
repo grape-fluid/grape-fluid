@@ -177,7 +177,7 @@ abstract class BaseModel
 	public function getAllItems(string|array|null $assocBy = null)
 	{
 		if (is_array($assocBy)) {
-			$assocBy = implode(',', $assocBy);
+			$assocBy = implode('|', $assocBy);
 		}
 
 		return $assocBy ? $this->getTableSelection()->fetchAssoc($assocBy) : $this->getTableSelection()->fetchAll();
