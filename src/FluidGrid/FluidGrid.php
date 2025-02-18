@@ -50,7 +50,7 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 	}
 
 
-	protected function build()
+	protected function build(): void
 	{
 		parent::build();
 
@@ -156,7 +156,7 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 	 * @param string $insertBefore
 	 * @return Column
 	 */
-	public function addColumn($name, $label = NULL, $insertBefore = null)
+	public function addColumn(string $name, string $label = NULL, $insertBefore = null): Column
 	{
 		if ($insertBefore) {
 			if (!isset($this['columns'])) {
@@ -179,7 +179,7 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 	 * @param  callable $callback
 	 * @return RowAction
 	 */
-	public function addRowAction($name, $label, callable $callback)
+	public function addRowAction(string $name, string $label, callable $callback): RowAction
 	{
 		$action = parent::addRowAction($name, $label, $callback);
 
@@ -369,6 +369,19 @@ abstract class FluidGrid extends \TwiGrid\DataGrid
 		$modelColumns = $this->model->getColumns();
 		$modelColumns = array_combine(array_column($modelColumns, 'name'), $modelColumns);
 		return $modelColumns;
+	}
+
+	/** @return \ArrayIterator<string, Column>|null */
+	public function getColumns(): ?\ArrayIterator
+	{
+		return isset($this['columns']) ? new \ArrayIterator($this['columns']->getComponents()) : null;
+	}
+
+
+	/** @return \ArrayIterator<string, RowAction>|null */
+	public function getRowActions(): ?\ArrayIterator
+	{
+		return isset($this['rowActions']) ? new \ArrayIterator($this['rowActions']->getComponents()) : null;
 	}
 
 }

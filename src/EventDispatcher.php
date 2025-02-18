@@ -24,17 +24,17 @@ class EventDispatcher extends \Symfony\Component\EventDispatcher\EventDispatcher
 	/**
 	 * {@inheritDoc}
 	 */
-	public function dispatch($eventName, \Symfony\Component\EventDispatcher\Event $event = null)
+	public function dispatch(object $event, ?string $eventName = null): object
 	{
 		$this->loadServiceListeners($eventName);
-		return parent::dispatch($eventName, $event);
+		return parent::dispatch($event, $eventName);
 	}
 	
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public function hasListeners($eventName = null)
+	public function hasListeners(?string $eventName = null): bool
 	{
 		if ($eventName === null) {
 			return count($this->serviceListeners) || count(parent::getListeners($eventName));
@@ -49,7 +49,7 @@ class EventDispatcher extends \Symfony\Component\EventDispatcher\EventDispatcher
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getListeners($eventName = null)
+	public function getListeners(?string $eventName = null): array
 	{
 		$this->loadServiceListeners($eventName);
 		return parent::getListeners($eventName);
@@ -59,7 +59,7 @@ class EventDispatcher extends \Symfony\Component\EventDispatcher\EventDispatcher
 	/**
 	 * {@inheritDoc}
 	 */
-	public function removeListener($eventName, $listener)
+	public function removeListener(string $eventName, callable|array $listener): void
 	{
 		if (isset($this->serviceListeners[$eventName])) {
 			foreach ($this->serviceListeners[$eventName] AS &$service) {

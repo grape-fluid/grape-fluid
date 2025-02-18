@@ -4,6 +4,7 @@ namespace Grapesc\GrapeFluid;
 
 use Grapesc\GrapeFluid\Security\NamespacesRepository;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\Statement;
 
 
 /**
@@ -28,40 +29,51 @@ class FluidExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$builder->addDefinition($this->prefix('parameters'))
-			->setClass(BaseParametersRepository::class)
-			->setDynamic();
-		
+			->setClass(BaseParametersRepository::class);
+
 		$builder->addDefinition($this->prefix('translator'))
-			->setClass(FluidTranslator::class, [$builder->parameters['translator']]);
-		
+			->setFactory(FluidTranslator::class, [$builder->parameters['translator']]);
+
 		$builder->addDefinition($this->prefix('eventDispatcher'))
 			->setClass(EventDispatcher::class)
 			->addSetup('addServiceListeners', [$builder->parameters['eventListeners']]);
 		
 		$builder->addDefinition($this->prefix('migration'))
-			->setClass(MigrationService::class)
-			->setDynamic();
+			->setClass(MigrationService::class);
 
 		$builder->addDefinition($this->prefix('moduleRepository'))
-			->setClass(ModuleRepository::class)
-			->setDynamic();
+			->setClass(ModuleRepository::class);
 
 		foreach ($this->getConfig()['security'] as $namespace => $config) {
+			if (is_array($config['authorizator'])) {
+				$authorizatorFactory = new Statement($config['authorizator']['class'], $config['authorizator']['arguments'] ?? []);
+			} elseif (is_object($config['authorizator'])) {
+				$authorizatorFactory = $config['authorizator'];
+			} else {
+				$authorizatorFactory = $config['authorizator'];
+			}
+
 			$builder->addDefinition($this->prefix("security.$namespace.authorizator"))
-				->setClass(is_object($config['authorizator']) ? $config['authorizator']->getEntity() : $config['authorizator'])
-				->setArguments(is_object($config['authorizator']) ? $config['authorizator']->arguments : [])
-				->setAutowired(false)
-				->setInject(false);
+				->setFactory($authorizatorFactory)
+//				->setArguments(is_object($config['authorizator']) ? $config['authorizator']->arguments : [])
+				->setAutowired(false);
+
+			if (is_array($config['authenticator'])) {
+				$authenticatorFactory = new Statement($config['authenticator']['class'], $config['authenticator']['arguments'] ?? []);
+			} elseif (is_object($config['authenticator'])) {
+				$authenticatorFactory = $config['authenticator'];
+			} else {
+				$authenticatorFactory = $config['authenticator'];
+			}
 
 			$builder->addDefinition($this->prefix("security.$namespace.authenticator"))
-				->setClass(is_object($config['authenticator']) ? $config['authenticator']->getEntity() : $config['authenticator'])
-				->setArguments(is_object($config['authenticator']) ? $config['authenticator']->arguments : [])
-				->setAutowired(false)
-				->setInject(false);
+				->setFactory($authenticatorFactory)
+//				->setArguments(is_object($config['authenticator']) ? $config['authenticator']->arguments : [])
+				->setAutowired(false);
 		}
 	
 		$builder->addDefinition($this->prefix('security.repository'))
-			->setClass(NamespacesRepository::class, [$this->getConfig()['security']]);
+			->setFactory(NamespacesRepository::class, [$this->getConfig()['security']]);
 	}
 	
 }

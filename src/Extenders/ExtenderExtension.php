@@ -3,6 +3,7 @@
 namespace Grapesc\GrapeFluid\Extenders;
 
 use Nette\DI\CompilerExtension;
+use Nette\DI\Extensions\InjectExtension;
 
 
 /**
@@ -19,9 +20,9 @@ class ExtenderExtension extends CompilerExtension
 		foreach ($extenders as $tag => $items) {
 			foreach ($items AS $key => $extender) {
 				$builder->addDefinition("fluid.extender.$tag.$key")
-					->setClass($extender)
+					->setFactory($extender)
 					->setAutowired(false)
-					->setInject(true)
+					->addTag(InjectExtension::TagInject)
 					->addTag("fluid.extender.$tag");
 			}
 		}
