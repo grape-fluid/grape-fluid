@@ -105,7 +105,7 @@ services:
 	- Grapesc\GrapeFluid\FluidGrid\FluidGridFactory
 	- Grapesc\GrapeFluid\Application\ActionTemplateOverloading( %overrideTemplate% )
 
-assets:
+fluidAssets:
     upload:
         copy:
             - ['%storage.backupFolder%*', '%storage.uploadFolder%*']
